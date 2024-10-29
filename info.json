@@ -1,0 +1,10 @@
+{
+  "name":"belt-fix",
+  "author":"kelianmao",
+  "version":"0.1.0",
+  "title":"2.0 Belt Fix",
+  "homepage":"",
+  "description":"Disable auto underground belt building behaviour",
+  "dependencies": ["base"],
+  "factorio_version": "2.0"
+}
