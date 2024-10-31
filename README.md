@@ -1,5 +1,7 @@
 Attempts to revert 'smart' belt building behaviour to 1.1 off state, specifically disabling the auto-building of undergrounds when building past an obstacle. Can also enable the building over of belts and undergrounds oriented in different directions.
 
+Demo vid: [youtube](https://youtu.be/ukCe15XvwKo)
+
 Cannot change the "build in a line" logic, since that isn't exposed to the modding interface. But personally, I was more annoyed by the random undergrounds appearing.
 
 Issues:
