@@ -1,32 +1,9 @@
 
+-- local variables for settings, etc
 local enabled
 local replace_belts
 local replace_undergrounds
 local filter_type
-
-local function get_filter_type()
-  local tbl = {}
-  if replace_belts then table.insert(tbl, "transport-belt") end
-  if replace_undergrounds then table.insert(tbl, "underground-belt") end
-  return tbl
-end
-
-script.on_init(function()
-  storage.last_built_direction = {}
-  storage.last_built_mode = {}
-  storage.to_replace = {}
-  enabled = settings.global["enabled"].value
-  replace_belts = settings.global["replace-belts"].value
-  replace_undergrounds = settings.global["replace-undergrounds"].value
-  filter_type = get_filter_type()
-end)
-
-script.on_load(function()
-  enabled = settings.global["enabled"].value
-  replace_belts = settings.global["replace-belts"].value
-  replace_undergrounds = settings.global["replace-undergrounds"].value
-  filter_type = get_filter_type()
-end)
 
 local function invert_defines(id, defines_)
   for event_, id_ in pairs(defines_) do
@@ -176,7 +153,7 @@ local function on_pre_build(event)
     replace_with_belt(entities[1], cursor, player, event.direction)
   end
 end
-script.on_event(defines.events.on_pre_build, on_pre_build)
+-- script.on_event(defines.events.on_pre_build, on_pre_build)
 
 ---@param event EventData.on_built_entity
 local function on_built_entity(event)
@@ -186,11 +163,11 @@ local function on_built_entity(event)
     -- game.print("invalid entity")
     return
   end
-  if entity.type == "transport-belt" or (entity.type == "entity-ghost" and entity.ghost_type == "transport-belt") then
-    -- assert(entity.direction == storage.last_built_direction[event.player_index])
-    storage.last_built_direction[event.player_index] = entity.direction
-    return
-  end
+  -- if entity.type == "transport-belt" or (entity.type == "entity-ghost" and entity.ghost_type == "transport-belt") then
+  --   assert(entity.direction == storage.last_built_direction[event.player_index])
+  --   storage.last_built_direction[event.player_index] = entity.direction
+  --   return
+  -- end
   -- game.print(event.tick, {skip=defines.print_skip.never})
   -- game.print(invert_defines(event.name, defines.events), {skip=defines.print_skip.never})
   -- game.print(entity.name, {skip=defines.print_skip.never})
@@ -214,7 +191,7 @@ local function on_built_entity(event)
     storage.to_replace[event.player_index] = nil
   end
 end
-script.on_event(defines.events.on_built_entity, on_built_entity, {{filter="type", type="underground-belt"}, {filter="type", type="transport-belt"}, {filter="ghost", type="underground-belt"}, {filter="ghost", type="transport-belt"}})
+-- script.on_event(defines.events.on_built_entity, on_built_entity, {{filter="type", type="underground-belt"}, {filter="ghost", type="underground-belt"}})
 
 
 -- ---@param event EventData.on_pre_player_mined_item
@@ -250,16 +227,40 @@ script.on_event(defines.events.on_built_entity, on_built_entity, {{filter="type"
 -- script.on_event(defines.events.on_player_mined_item, on_player_mined_item)
 
 
-script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
-  storage.last_built_direction = storage.last_built_direction or {}  -- TESTING
-  storage.last_built_mode = storage.last_built_mode or {}
-  storage.to_replace = storage.to_replace or {}
+local function reload_cache()
+  -- read from settings
   enabled = settings.global["enabled"].value
   replace_belts = settings.global["replace-belts"].value
   replace_undergrounds = settings.global["replace-undergrounds"].value
-  filter_type = get_filter_type()
-  -- if not enabled then
-  --   script.on_event(defines.events.on_built_entity, nil)
-  -- end
+  -- update filter for on_pre_build
+  filter_type = {}
+  if replace_belts then table.insert(filter_type, "transport-belt") end
+  if replace_undergrounds then table.insert(filter_type, "underground-belt") end
+  -- register events
+  if not enabled then
+    script.on_event(defines.events.on_built_entity, nil)
+    script.on_event(defines.events.on_pre_build, nil)
+  else
+    script.on_event(defines.events.on_built_entity, on_built_entity, {{filter="type", type="underground-belt"}, {filter="ghost", type="underground-belt"}})
+    script.on_event(defines.events.on_pre_build, on_pre_build)
+  end
+end
+
+script.on_init(function()
+  storage.last_built_direction = {}
+  storage.last_built_mode = {}
+  storage.to_replace = {}
+  reload_cache()
+end)
+
+script.on_load(function()
+  reload_cache()
+end)
+
+script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
+  -- storage.last_built_direction = storage.last_built_direction or {}  -- TESTING
+  -- storage.last_built_mode = storage.l_built_mode or {}
+  -- storage.to_replace = storage.to_replace or {}
+  reload_cache()
 end)
 
