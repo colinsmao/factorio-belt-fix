@@ -147,7 +147,7 @@ local function on_pre_build(event)
   local player = game.get_player(event.player_index)
   if not player then return end
   local cursor = get_cursor(player)
-  if not cursor or cursor.name ~= "transport-belt" then return end  -- :sub(-14)
+  if not cursor or cursor.name:sub(-14) ~= "transport-belt" then return end  -- :sub(-14)
   local entities = player.surface.find_entities_filtered{position=event.position,type=filter_type}
   if #entities == 1 then
     replace_with_belt(entities[1], cursor, player, event.direction)
@@ -178,7 +178,7 @@ local function on_built_entity(event)
   local player = game.get_player(event.player_index)
   if not player then return end
   local cursor = get_cursor(player)
-  if not cursor or cursor.name ~= "transport-belt" then return end  -- :sub(-14)
+  if not cursor or cursor.name:sub(-14) ~= "transport-belt" then return end  -- :sub(-14)
 
   -- replace_underground(entity, player)
   if storage.to_replace[event.player_index] == nil then
