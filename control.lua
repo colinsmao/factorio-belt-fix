@@ -74,11 +74,16 @@ local function replace_with_belt(entity, cursor, player, direction)
   else
     item = entity.ghost_name
   end
+  local quality = entity.quality.name
+  -- game.print(quality, {skip=defines.print_skip.never})
+  -- game.print(cursor.quality, {skip=defines.print_skip.never})
 
-  if item == cursor.name then  -- same item, no need to destroy/create, just rotate
+  if item == cursor.name and quality == cursor.quality then  -- same item, no need to destroy/create, just rotate
     entity.direction = direction
     return
   end
+
+  -- game.print(player.get_main_inventory().get_item_count({name=item, quality=quality}), {skip=defines.print_skip.never})
 
   -- place the regular belt
   local params = {
@@ -100,7 +105,7 @@ local function replace_with_belt(entity, cursor, player, direction)
     params.name = "entity-ghost"
   else
     entity.destroy{script_raised_destroy=false}
-    player.get_main_inventory().insert({name=item, count=1})  -- refund the replaced entity
+    player.get_main_inventory().insert({name=item, count=1, quality=quality})  -- refund the replaced entity
     cursor.item_stack.count = cursor.item_stack.count - 1  -- place an item from the cursor
   end
   player.surface.create_entity(params)
@@ -115,7 +120,7 @@ local function get_cursor(player)
   if player.cursor_stack and player.cursor_stack.valid_for_read then
     cursor = {
       name = player.cursor_stack.name,
-      quality = player.cursor_stack.quality,
+      quality = player.cursor_stack.quality.name,
       item_stack = player.cursor_stack,
     }
   elseif player.cursor_ghost then
