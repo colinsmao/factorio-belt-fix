@@ -1,0 +1,19 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.1.2
+Date: 31. 10. 2024
+  Info:
+    - Added changelog.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.1
+Date: 31. 10. 2024
+  Features:
+    - Properly supports quality.
+  Bugfixes:
+    - Fixed refunding undergrounds when the player has none.
+---------------------------------------------------------------------------------------------------
+Version: 0.1.0
+Date: 31. 10. 2024
+  Major Features:
+    - Initial release.
+    - Disables auto underground belt placement.
+    - Option to fast replace over existing belts and/or undergrounds.
