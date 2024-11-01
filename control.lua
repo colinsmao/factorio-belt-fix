@@ -69,7 +69,8 @@ local function replace_with_belt(entity, cursor, player, direction)
   -- if entity.belt_to_ground_type == "output" then direction = flip_direction[direction] end
 
   local item
-  if entity.type ~= "entity-ghost" then
+  local is_ghost = entity.type == "entity-ghost"
+  if not is_ghost then
     item = entity.name  -- TODO: use entity.prototype.mineable_properties.products rather than entity.name
   else
     item = entity.ghost_name
@@ -105,7 +106,9 @@ local function replace_with_belt(entity, cursor, player, direction)
     params.name = "entity-ghost"
   else
     entity.destroy{script_raised_destroy=false}
-    player.get_main_inventory().insert({name=item, count=1, quality=quality})  -- refund the replaced entity
+    if not is_ghost then
+      player.get_main_inventory().insert({name=item, count=1, quality=quality})  -- refund the replaced entity
+    end
     cursor.item_stack.count = cursor.item_stack.count - 1  -- place an item from the cursor
   end
   player.surface.create_entity(params)
@@ -184,6 +187,8 @@ local function on_built_entity(event)
   if not player then return end
   local cursor = get_cursor(player)
   if not cursor or cursor.name:sub(-14) ~= "transport-belt" then return end  -- :sub(-14)
+
+  -- game.print(player.get_main_inventory().get_item_count({name=entity.name, quality=entity.quality}), {skip=defines.print_skip.never})
 
   -- replace_underground(entity, player)
   if storage.to_replace[event.player_index] == nil then
